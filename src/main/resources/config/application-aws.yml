@@ -1,0 +1,20 @@
+hazelcast:
+  config:
+    group:
+        name: hazelcast-sample
+        password: secret
+    network:
+      port: 5705
+      port-auto-increment: true
+      multicast:
+        enabled: false
+      tcp-ip:
+        enabled: false
+      aws:
+        enabled: true
+        access-key: ${awsAccessKey}
+        secret-key: ${awsSecretKey}
+        region: us-east-1
+        security-group-name: hazelcast-sg
+#        tag-key: type
+#        tag-value: hz-nodes

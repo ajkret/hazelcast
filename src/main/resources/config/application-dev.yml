@@ -1,0 +1,12 @@
+hazelcast:
+  config:
+    network:
+      port: 7777
+      port-auto-increment: true
+      multicast:
+        enabled: false
+      tcp-ip:
+        enabled: true
+#        members: 127.0.0.1
+      aws:
+        enabled: false
