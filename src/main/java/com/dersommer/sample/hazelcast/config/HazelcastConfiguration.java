@@ -83,11 +83,13 @@ public class HazelcastConfiguration {
     @Value("${hazelcast.config.network.aws.tag-value:}")
     private String awsTagValue;
 
+    @Value("${hazelcast.config.network.aws.i-am-role:}")
+    private String iAmRole;
+
     @Bean
     public Config configureHazelcast() {
 
         Config config = new Config();
-
 
         if (!StringUtils.isEmpty(group)) {
             LOGGER.info("Hazelcast: group configuration ENABLED {} {}", group, password);
@@ -104,18 +106,25 @@ public class HazelcastConfiguration {
         LOGGER.info("Hazelcast: Port configured {} auto increment {}", port, portAutoIncrement);
 
         JoinConfig joinConfig = networkConfig.getJoin();
-        joinConfig.getMulticastConfig().setEnabled(false);
-        joinConfig.getTcpIpConfig().setEnabled(false);
-        joinConfig.getAwsConfig().setEnabled(false);
+        joinConfig.getMulticastConfig()
+                  .setEnabled(false);
+        joinConfig.getTcpIpConfig()
+                  .setEnabled(false);
+        joinConfig.getAwsConfig()
+                  .setEnabled(false);
         if (tcpIpEnabled) {
-            joinConfig.getTcpIpConfig().setEnabled(true);
-            LOGGER.info("Hazelcast: TCP IP joiner {}", Arrays.asList(tcpMembers).stream().collect(Collectors.joining(",")));
+            joinConfig.getTcpIpConfig()
+                      .setEnabled(true);
+            LOGGER.info("Hazelcast: TCP IP joiner {}", Arrays.asList(tcpMembers)
+                                                             .stream()
+                                                             .collect(Collectors.joining(",")));
             TcpIpConfig tcpIpConfig = joinConfig.getTcpIpConfig();
             if (tcpMembers != null)
                 Stream.of(tcpMembers)
                       .forEach(member -> tcpIpConfig.addMember(member));
         } else if (multicastEnabled) {
-            joinConfig.getMulticastConfig().setEnabled(true);
+            joinConfig.getMulticastConfig()
+                      .setEnabled(true);
             LOGGER.info("Hazelcast: Multicast joiner {}:{} loopback mode={} interfaces {} ", multicastGroup, multicastPort, multicastLoopbackMode,
                 multicastInterfaces);
             MulticastConfig multicastConfig = joinConfig.getMulticastConfig();
@@ -128,27 +137,30 @@ public class HazelcastConfiguration {
                 Stream.of(multicastInterfaces)
                       .forEach(ip -> multicastConfig.addTrustedInterface(ip));
         } else if (awsEnabled) {
-            joinConfig.getAwsConfig().setEnabled(true);
+            joinConfig.getAwsConfig()
+                      .setEnabled(true);
             LOGGER.info("Hazelcast: AWS discovery enabled AWS Key {} region {}", awsAccessKey, awsRegion);
             AwsConfig awsConfig = joinConfig.getAwsConfig();
-            awsConfig.setAccessKey(awsAccessKey);
-            awsConfig.setSecretKey(awsSecretKey);
             awsConfig.setRegion(awsRegion);
+            if (!StringUtils.isEmpty(iAmRole)) {
+                awsConfig.setIamRole(iAmRole);
+            } else {
+                awsConfig.setAccessKey(awsAccessKey);
+                awsConfig.setSecretKey(awsSecretKey);
+                if (!StringUtils.isEmpty(awsSecurityGroupName)) {
+                    LOGGER.info("Hazelcast: AWS Securiy Group {}", awsSecurityGroupName);
+                    awsConfig.setSecurityGroupName(awsSecurityGroupName);
+                }
+            }
             if (!StringUtils.isEmpty(awsHostHeader)) {
                 LOGGER.info("Hazelcast: AWS Host Header {}", awsHostHeader);
                 awsConfig.setHostHeader(awsHostHeader);
-            }
-            if (!StringUtils.isEmpty(awsSecurityGroupName)) {
-                LOGGER.info("Hazelcast: AWS Securiy Group {}", awsSecurityGroupName);
-                awsConfig.setSecurityGroupName(awsSecurityGroupName);
             }
             if (!StringUtils.isEmpty(awsTagKey)) {
                 LOGGER.info("Hazelcast: AWS Tag key / value {}", awsTagKey, awsTagValue);
                 awsConfig.setSecurityGroupName(awsTagKey);
                 awsConfig.setSecurityGroupName(awsTagValue);
             }
-            
-
         }
         config.setNetworkConfig(networkConfig);
 
