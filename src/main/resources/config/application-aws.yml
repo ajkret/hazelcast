@@ -12,10 +12,10 @@ hazelcast:
         enabled: false
       aws:
         enabled: true
-#        i-am-role: ${iAmRole}
-        access-key: ${awsAccessKey}
-        secret-key: ${awsSecretKey}
+        i-am-role: ${iAmRole}
+#        access-key: ${awsAccessKey}
+#        secret-key: ${awsSecretKey}
         region: us-east-1
-        security-group-name: hazelcast-sg
+        security-group-name: hazelcast
 #        tag-key: type
 #        tag-value: hz-nodes
