@@ -4,7 +4,7 @@ hazelcast:
         name: hazelcast-sample
         password: secret
     network:
-      port: 5705
+      port: 3306
       port-auto-increment: true
       multicast:
         enabled: false
